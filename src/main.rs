@@ -1,10 +1,16 @@
 use color_eyre::eyre::{Ok, Result};
 use ratatui::{
-    DefaultTerminal, Frame, crossterm::event::{self, KeyCode, KeyEventKind}, layout::{Constraint, Layout, Position}, style::{Color, Modifier, Style, Stylize}, text::{Line, Text}, widgets::{Block, Paragraph},
+    DefaultTerminal, Frame,
+    crossterm::event::{self, KeyCode, KeyEventKind},
+    layout::{Constraint, Layout, Position},
+    style::{Color, Modifier, Style, Stylize},
+    text::{Line, Text},
+    widgets::{Block, Clear, Paragraph, Wrap},
 };
 
-mod model;
 mod controller;
+mod model;
+mod view;
 
 use crate::model::{App, InputMode};
 
@@ -20,7 +26,7 @@ impl App {
         Self {
             input: String::new(),
             input_mode: InputMode::Normal,
-            character_index: 0, 
+            character_index: 0,
         }
     }
 
@@ -55,20 +61,20 @@ impl App {
         }
     }
 
-    /*
-     * TODO:
-     *  1. Make the input go into the center of the screen
-     *  2. Reduce the input width and instead make it grow vertically as the user writes
-     *  3. Maybe remove the normal mode and only keep the editing mode
-     *  4. Find a way to use the messages that we are submitting to the input
-     */
+    // Basically renders the input block / instructional text
     fn render(&self, frame: &mut Frame) {
-        let layout = Layout::vertical([
+        let available_width = (frame.area().width / 2) - 1;
+        let input_len = self.input.chars().count() as u16;
+        let input_height = (input_len / available_width.max(1) + 1) + 2;
+
+        let centered_area = view::centered_rect(50, input_height + 1, frame.area());
+        frame.render_widget(Clear, centered_area);
+
+        let [help_area, input_area] = centered_area.layout(&Layout::vertical([
             Constraint::Length(1),
-            Constraint::Length(3),
-            Constraint::Min(1),
-        ]);
-        let [help_area, input_area, messages_area] = frame.area().layout(&layout);
+            Constraint::Length(input_height),
+        ]));
+
         let (msg, style) = match self.input_mode {
             InputMode::Normal => (
                 vec![
@@ -96,9 +102,10 @@ impl App {
         frame.render_widget(help_message, help_area);
 
         let input = Paragraph::new(self.input.as_str())
+            .wrap(Wrap { trim: true })
             .style(match self.input_mode {
                 InputMode::Normal => Style::default(),
-                InputMode::Editing => Style::default().fg(Color::LightCyan),
+                InputMode::Editing => Style::default().fg(Color::Red),
             })
             .block(Block::bordered().title("Input"));
         frame.render_widget(input, input_area);
@@ -106,7 +113,14 @@ impl App {
         match self.input_mode {
             InputMode::Normal => {}
             #[expect(clippy::cast_possible_truncation)]
-            InputMode::Editing => frame.set_cursor_position(Position::new(input_area.x + self.character_index as u16 + 1, input_area.y + 1)),
+            InputMode::Editing => {
+                let cursor_row = self.character_index as u16 / available_width;
+                let cursor_col = self.character_index as u16 % available_width;
+                frame.set_cursor_position(Position::new(
+                    input_area.x + cursor_col + 1,
+                    input_area.y + cursor_row + 1,
+                ));
+            }
         }
     }
 }
