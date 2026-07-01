@@ -1,13 +1,13 @@
 use color_eyre::eyre::{Ok, Result};
 use ratatui::{
     DefaultTerminal, Frame,
-    crossterm::{event::{self, KeyCode, KeyEventKind},
-    layout::{Alignment, Constraint, Direction, Layout, Position},
+    crossterm::{event::{self, KeyCode, KeyEventKind}},
+    layout::{Constraint, Direction, Layout, Position},
     style::{Color, Modifier, Style, Stylize},
     text::{Line, Text},
     widgets::{Block, Clear, Paragraph, Wrap},
 };
-use tui_big_text::{BigText, BigTextBuilder, PixelSize};
+use tui_big_text::{BigText, PixelSize};
 
 mod controller;
 mod model;
@@ -74,18 +74,19 @@ impl App {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([
-                Constraint::Length(6),
+                Constraint::Length(8),
                 Constraint::Min(0),
             ])
+            .vertical_margin(4)
             .split(frame.area());
 
         let title = BigText::builder()
             .pixel_size(PixelSize::Full)
+            .centered()
             .lines(vec![
-                Line::styled("RUSTY", Style::default().fg(Color::Rgb(222,100,60))),
-                Line::styled("CODE", Style::default().fg(Color::Rgb(180,70,50))),
+                Line::styled("RUSTY CODE", Style::default().fg(Color::Rgb(222, 100, 60))),
             ])
-            .build()?;
+            .build();
 
         frame.render_widget(title, chunks[0]);
 
@@ -124,7 +125,7 @@ impl App {
             .wrap(Wrap { trim: true })
             .style(match self.input_mode {
                 InputMode::Normal => Style::default(),
-                InputMode::Editing => Style::default().fg(Color::Red),
+                InputMode::Editing => Style::default().fg(Color::Rgb(222, 100, 60)),
             })
             .block(Block::bordered().title("Input"));
         frame.render_widget(input, input_area);
