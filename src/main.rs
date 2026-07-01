@@ -1,12 +1,13 @@
 use color_eyre::eyre::{Ok, Result};
 use ratatui::{
     DefaultTerminal, Frame,
-    crossterm::event::{self, KeyCode, KeyEventKind},
-    layout::{Constraint, Layout, Position},
+    crossterm::{event::{self, KeyCode, KeyEventKind},
+    layout::{Alignment, Constraint, Direction, Layout, Position},
     style::{Color, Modifier, Style, Stylize},
     text::{Line, Text},
     widgets::{Block, Clear, Paragraph, Wrap},
 };
+use tui_big_text::{BigText, BigTextBuilder, PixelSize};
 
 mod controller;
 mod model;
@@ -70,6 +71,24 @@ impl App {
         let centered_area = view::centered_rect(50, input_height + 1, frame.area());
         frame.render_widget(Clear, centered_area);
 
+        let chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints([
+                Constraint::Length(6),
+                Constraint::Min(0),
+            ])
+            .split(frame.area());
+
+        let title = BigText::builder()
+            .pixel_size(PixelSize::Full)
+            .lines(vec![
+                Line::styled("RUSTY", Style::default().fg(Color::Rgb(222,100,60))),
+                Line::styled("CODE", Style::default().fg(Color::Rgb(180,70,50))),
+            ])
+            .build()?;
+
+        frame.render_widget(title, chunks[0]);
+
         let [help_area, input_area] = centered_area.layout(&Layout::vertical([
             Constraint::Length(1),
             Constraint::Length(input_height),
@@ -100,7 +119,7 @@ impl App {
         let text = Text::from(Line::from(msg)).patch_style(style);
         let help_message = Paragraph::new(text);
         frame.render_widget(help_message, help_area);
-
+        
         let input = Paragraph::new(self.input.as_str())
             .wrap(Wrap { trim: true })
             .style(match self.input_mode {
