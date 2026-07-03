@@ -49,6 +49,40 @@ impl App {
         }
     }
 
+    pub fn clear_input(&mut self) {
+        if self.input.is_empty() {
+            return;
+        }
+
+        self.save_edit_state();
+        self.input.clear();
+        self.reset_cursor();
+    }
+
+    pub fn paste(&mut self) {
+        let Ok(mut clipboard) = arboard::Clipboard::new() else {
+            return;
+        };
+
+        let Ok(text) = clipboard.get_text() else {
+            return;
+        };
+
+        self.paste_text(&text);
+    }
+
+    fn paste_text(&mut self, text: &str) {
+        let text: String = text.chars().filter(|c| *c != '\n' && *c != '\r').collect();
+        if text.is_empty() {
+            return;
+        }
+
+        self.save_edit_state();
+        let index = self.byte_index();
+        self.input.insert_str(index, &text);
+        self.character_index += text.chars().count();
+    }
+
     pub fn submit_message(&mut self) {
         self.input.clear();
         self.reset_cursor();

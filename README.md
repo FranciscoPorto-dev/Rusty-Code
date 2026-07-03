@@ -109,6 +109,8 @@ Or run the release binary directly:
 | `Ctrl+A` | Move cursor to start of line |
 | `Ctrl+U` | Delete from cursor to start of line |
 | `Ctrl+Z` | Undo last edit |
+| `Ctrl+C` / `Cmd+C` | Clear input |
+| `Ctrl+V` / `Cmd+V` | Paste from clipboard |
 | `q` | Quit |
 
 ## Project Structure
