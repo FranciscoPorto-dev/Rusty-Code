@@ -1,7 +1,7 @@
 use color_eyre::eyre::{Ok, Result};
 use ratatui::{
     DefaultTerminal, Frame,
-    crossterm::{event::{self, KeyCode, KeyEventKind}},
+    crossterm::{event::{self, KeyCode, KeyEventKind, KeyModifiers}},
     layout::{Constraint, Direction, Layout, Position},
     style::{Color, Modifier, Style, Stylize},
     text::{Line, Text},
@@ -28,6 +28,7 @@ impl App {
             input: String::new(),
             input_mode: InputMode::Normal,
             character_index: 0,
+            edit_history: Vec::new(),
         }
     }
 
@@ -47,15 +48,27 @@ impl App {
                         }
                         _ => {}
                     },
-                    InputMode::Editing if key.kind == KeyEventKind::Press => match key.code {
-                        KeyCode::Enter => self.submit_message(),
-                        KeyCode::Char(to_insert) => self.enter_char(to_insert),
-                        KeyCode::Backspace => self.delete_char(),
-                        KeyCode::Left => self.move_cursor_left(),
-                        KeyCode::Right => self.move_cursor_right(),
-                        KeyCode::Esc => self.input_mode = InputMode::Normal,
-                        _ => {}
-                    },
+                    InputMode::Editing if key.kind == KeyEventKind::Press => {
+                        let ctrl = key.modifiers.contains(KeyModifiers::CONTROL);
+                        match key.code {
+                            KeyCode::Char(c) if ctrl && matches!(c, 'a' | 'A') => {
+                                self.move_cursor_to_start();
+                            }
+                            KeyCode::Char(c) if ctrl && matches!(c, 'u' | 'U') => {
+                                self.delete_to_line_start();
+                            }
+                            KeyCode::Char(c) if ctrl && matches!(c, 'z' | 'Z') => {
+                                self.undo();
+                            }
+                            KeyCode::Enter => self.submit_message(),
+                            KeyCode::Char(to_insert) if !ctrl => self.enter_char(to_insert),
+                            KeyCode::Backspace => self.delete_char(),
+                            KeyCode::Left => self.move_cursor_left(),
+                            KeyCode::Right => self.move_cursor_right(),
+                            KeyCode::Esc => self.input_mode = InputMode::Normal,
+                            _ => {}
+                        }
+                    }
                     InputMode::Editing => {}
                 }
             }

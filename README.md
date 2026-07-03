@@ -106,6 +106,9 @@ Or run the release binary directly:
 | `Enter` | Submit input |
 | `←` / `→` | Move cursor |
 | `Backspace` | Delete character before cursor |
+| `Ctrl+A` | Move cursor to start of line |
+| `Ctrl+U` | Delete from cursor to start of line |
+| `Ctrl+Z` | Undo last edit |
 | `q` | Quit |
 
 ## Project Structure
