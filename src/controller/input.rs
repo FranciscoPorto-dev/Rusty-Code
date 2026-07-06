@@ -5,7 +5,7 @@ impl App {
         self.save_edit_state();
         let index = self.byte_index();
         self.input.insert(index, new_char);
-        self.character_index = index + 1;
+        self.move_cursor_right();
     }
 
     fn byte_index(&self) -> usize {

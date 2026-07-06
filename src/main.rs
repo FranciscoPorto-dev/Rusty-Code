@@ -1,7 +1,7 @@
 use color_eyre::eyre::{Ok, Result};
 use ratatui::{
     DefaultTerminal,
-    crossterm::event::{self, KeyCode, KeyEventKind, KeyModifiers},
+    crossterm::event::{self, KeyCode, KeyModifiers},
 };
 
 mod controller;
@@ -43,7 +43,7 @@ impl App {
                         }
                         _ => {}
                     },
-                    InputMode::Editing if key.kind == KeyEventKind::Press => {
+                    InputMode::Editing => {
                         let ctrl = key.modifiers.contains(KeyModifiers::CONTROL);
                         let shortcut = key
                             .modifiers
@@ -73,7 +73,6 @@ impl App {
                             _ => {}
                         }
                     }
-                    InputMode::Editing => {}
                 }
             }
         }
