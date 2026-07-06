@@ -15,5 +15,7 @@ impl App {
         self.character_index = self.clamp_cursor(cursor_moved_right);
     }
 
-    
+    pub fn move_cursor_to_start(&mut self) {
+        self.character_index = 0;
+    }
 }
