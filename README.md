@@ -8,9 +8,12 @@ Rusty Code is built as a **Rust-native alternative to [OpenCode](https://opencod
 
 The project is in early development. The current TUI foundation includes:
 
-- A centered input area with normal and editing modes
+- A centered, wrapping input area with normal and editing modes
 - Keyboard-driven navigation (cursor movement, submit, quit)
-- A styled title banner and help text
+- Editing shortcuts — undo, clear, paste, delete-to-line-start, and move-to-start
+- Clipboard paste via `arboard` (Ctrl+V / Cmd+V on macOS)
+- Unicode-aware cursor positioning for multibyte input
+- A styled title banner and context-sensitive help text
 - A modular architecture split into **model**, **view**, and **controller** layers
 
 Planned capabilities include multi-provider API integration, session management, tool use (file search, shell commands, code edits), and persistent conversation history.
@@ -55,6 +58,12 @@ All crate dependencies are managed by [Cargo](https://doc.rust-lang.org/cargo/).
 | [ratatui](https://crates.io/crates/ratatui) | `0.30.2` | Terminal UI framework (widgets, layout, styling, event loop) |
 | [color-eyre](https://crates.io/crates/color-eyre) | `0.6` | Colorful error reporting and backtraces |
 | [tui-big-text](https://crates.io/crates/tui-big-text) | `0.8` | Large pixel-style text rendering for the title banner |
+| [arboard](https://crates.io/crates/arboard) | `3.6` | Cross-platform clipboard access for paste support |
+| [reqwest](https://crates.io/crates/reqwest) | `0.12` | HTTP client for LLM API integration (planned) |
+| [tokio](https://crates.io/crates/tokio) | `1` | Async runtime for API calls and streaming (planned) |
+| [serde](https://crates.io/crates/serde) | `1` | Serialization/deserialization for API payloads (planned) |
+| [serde_json](https://crates.io/crates/serde_json) | `1.0` | JSON encoding for API requests and responses (planned) |
+| [futures-util](https://crates.io/crates/futures-util) | `0.3` | Async stream utilities for LLM response streaming (planned) |
 
 #### `ratatui` features enabled
 
@@ -117,12 +126,12 @@ Or run the release binary directly:
 
 ```
 src/
-├── main.rs              # Entry point, render loop, and key handling
-├── model.rs             # App state (input, cursor, mode)
-├── view.rs              # Layout helpers (centered rectangles)
+├── main.rs              # Entry point, event loop, and key handling
+├── model.rs             # App state (input, cursor, mode, edit history)
+├── view.rs              # UI rendering (title, help text, input area)
 └── controller/
     ├── mod.rs           # Controller module
-    ├── input.rs         # Character input and deletion
+    ├── input.rs         # Character input, deletion, undo, paste, and clear
     └── cursor.rs        # Cursor movement logic
 ```
 
