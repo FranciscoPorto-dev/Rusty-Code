@@ -1,4 +1,4 @@
-use crate::model::App;
+use crate::model::{App, Message, Role};
 
 impl App {
     pub fn enter_char(&mut self, new_char: char) {
@@ -84,6 +84,14 @@ impl App {
     }
 
     pub fn submit_message(&mut self) {
+        if self.input.is_empty() {
+            return;
+        }
+
+        self.messages.push(Message {
+            content: self.input.clone(),
+            role: Role::User,
+        });
         self.input.clear();
         self.reset_cursor();
         self.edit_history.clear();

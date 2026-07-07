@@ -17,9 +17,10 @@ fn main() -> Result<()> {
 }
 
 impl App {
-    const fn new() -> Self {
+    fn new() -> Self {
         // Initialize the App struct with default values
         Self {
+            messages: Vec::new(),
             input: String::new(),
             input_mode: InputMode::Normal,
             character_index: 0,

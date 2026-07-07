@@ -33,7 +33,7 @@ pub fn render(app: &App, frame: &mut Frame) {
     let centered_area = centered_rect(50, input_height + 1, frame.area());
     frame.render_widget(Clear, centered_area);
 
-    let chunks = Layout::default()
+    let chunks = Layout::default() // Layout for the title and help/input areas
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(8),
@@ -41,7 +41,8 @@ pub fn render(app: &App, frame: &mut Frame) {
         ])
         .vertical_margin(4)
         .split(frame.area());
-
+    
+    // Main text saying "RUSTY CODE" using big text library for better pixelated look
     let title = BigText::builder()
         .pixel_size(PixelSize::Full)
         .centered()
@@ -50,15 +51,15 @@ pub fn render(app: &App, frame: &mut Frame) {
         ])
         .build();
 
-    frame.render_widget(title, chunks[0]);
+    frame.render_widget(title, chunks[0]); // Render the title in the first chunk
 
     let [help_area, input_area] = centered_area.layout(&Layout::vertical([
-        Constraint::Length(1),
-        Constraint::Length(input_height),
+        Constraint::Length(1), // Help area
+        Constraint::Length(input_height), // Input area
     ]));
 
     let (msg, style) = match app.input_mode {
-        InputMode::Normal => (
+        InputMode::Normal => ( // Normal mode help message
             vec![
                 "Press ".into(),
                 "q".bold(),
@@ -68,7 +69,7 @@ pub fn render(app: &App, frame: &mut Frame) {
             ],
             Style::default().add_modifier(Modifier::RAPID_BLINK),
         ),
-        InputMode::Editing => (
+        InputMode::Editing => ( // Editing mode help message
             vec![
                 "Press ".into(),
                 "Esc".bold(),
@@ -79,17 +80,17 @@ pub fn render(app: &App, frame: &mut Frame) {
             Style::default(),
         ),
     };
-    let text = Text::from(Line::from(msg)).patch_style(style);
+    let text = Text::from(Line::from(msg)).patch_style(style); // Create the help message text with the appropriate style
     let help_message = Paragraph::new(text);
-    frame.render_widget(help_message, help_area);
+    frame.render_widget(help_message, help_area); // Render the help message in the help area
 
-    let input = Paragraph::new(app.input.as_str())
+    let input = Paragraph::new(app.input.as_str()) // Create the input text with the appropriate style
         .wrap(Wrap { trim: true })
         .style(match app.input_mode {
-            InputMode::Normal => Style::default(),
-            InputMode::Editing => Style::default().fg(Color::Rgb(222, 100, 60)),
+            InputMode::Normal => Style::default(), // Normal mode input style
+            InputMode::Editing => Style::default().fg(Color::Rgb(222, 100, 60)), // Editing mode input style
         })
-        .block(Block::bordered().title("Input"));
+        .block(Block::bordered().title("Input")); // Create the input block
     frame.render_widget(input, input_area);
 
     match app.input_mode {
