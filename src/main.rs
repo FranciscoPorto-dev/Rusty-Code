@@ -12,22 +12,10 @@ use crate::model::{App, InputMode};
 
 fn main() -> Result<()> {
     color_eyre::install()?;
-    // begin terminal using the App struct found in model.rs
     ratatui::run(|terminal| App::new().run(terminal))
 }
 
 impl App {
-    fn new() -> Self {
-        // Initialize the App struct with default values
-        Self {
-            messages: Vec::new(),
-            input: String::new(),
-            input_mode: InputMode::Normal,
-            character_index: 0,
-            edit_history: Vec::new(),
-        }
-    }
-
     fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<()> {
         loop {
             terminal.draw(|frame| view::render(self, frame))?;
