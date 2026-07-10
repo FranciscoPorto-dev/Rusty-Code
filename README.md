@@ -15,6 +15,7 @@ The project is in early development. The current TUI foundation includes:
 - Unicode-aware cursor positioning for multibyte input
 - A styled title banner and context-sensitive help text
 - A modular architecture split into **model**, **view**, and **controller** layers
+- Conversation state modeled as role-tagged messages (`User` / `Assistant`), with a dedicated Tokio runtime and channel set up on `App` to hand off API calls without blocking the UI thread
 
 Planned capabilities include multi-provider API integration, session management, tool use (file search, shell commands, code edits), and persistent conversation history.
 
@@ -59,15 +60,19 @@ All crate dependencies are managed by [Cargo](https://doc.rust-lang.org/cargo/).
 | [color-eyre](https://crates.io/crates/color-eyre) | `0.6` | Colorful error reporting and backtraces |
 | [tui-big-text](https://crates.io/crates/tui-big-text) | `0.8` | Large pixel-style text rendering for the title banner |
 | [arboard](https://crates.io/crates/arboard) | `3.6` | Cross-platform clipboard access for paste support |
-| [reqwest](https://crates.io/crates/reqwest) | `0.12` | HTTP client for LLM API integration (planned) |
-| [tokio](https://crates.io/crates/tokio) | `1` | Async runtime for API calls and streaming (planned) |
-| [serde](https://crates.io/crates/serde) | `1` | Serialization/deserialization for API payloads (planned) |
-| [serde_json](https://crates.io/crates/serde_json) | `1.0` | JSON encoding for API requests and responses (planned) |
-| [futures-util](https://crates.io/crates/futures-util) | `0.3` | Async stream utilities for LLM response streaming (planned) |
+| [reqwest](https://crates.io/crates/reqwest) | `0.12` | HTTP client for LLM API integration, using `rustls` for TLS instead of the platform's native TLS |
+| [tokio](https://crates.io/crates/tokio) | `1` | Async runtime powering a dedicated background runtime the TUI hands API calls off to |
+| [serde](https://crates.io/crates/serde) | `1` | Serialization/deserialization for API payloads |
+| [serde_json](https://crates.io/crates/serde_json) | `1.0` | JSON encoding for API requests and responses |
+| [futures-util](https://crates.io/crates/futures-util) | `0.3` | Async stream utilities for LLM response streaming |
 
 #### `ratatui` features enabled
 
 - `all-widgets` — includes all built-in Ratatui widgets (blocks, paragraphs, lists, tables, charts, etc.)
+
+#### `reqwest` features enabled
+
+- `default-features = false` with `json`, `stream`, and `rustls-tls` — drops the default `native-tls` backend in favor of `rustls`, so the app doesn't depend on OpenSSL at build/runtime.
 
 ### Key Transitive Dependencies
 
@@ -81,6 +86,9 @@ These are pulled in automatically by the direct dependencies above:
 | [cassowary](https://crates.io/crates/cassowary) | Constraint-based layout solver |
 | [eyre](https://crates.io/crates/eyre) | Error handling (used by `color-eyre`) |
 | [backtrace](https://crates.io/crates/backtrace) | Stack trace support for errors |
+| [rustls](https://crates.io/crates/rustls) | Pure-Rust TLS implementation used by `reqwest` |
+| [tokio-rustls](https://crates.io/crates/tokio-rustls) | Async TLS streams bridging `tokio` and `rustls` |
+| [ring](https://crates.io/crates/ring) | Cryptographic primitives backing `rustls` |
 
 For the complete list of all resolved crates and their exact versions, see [`Cargo.lock`](./Cargo.lock).
 
@@ -127,12 +135,16 @@ Or run the release binary directly:
 ```
 src/
 ├── main.rs              # Entry point, event loop, and key handling
-├── model.rs             # App state (input, cursor, mode, edit history)
 ├── view.rs              # UI rendering (title, help text, input area)
-└── controller/
-    ├── mod.rs           # Controller module
-    ├── input.rs         # Character input, deletion, undo, paste, and clear
-    └── cursor.rs        # Cursor movement logic
+├── model/
+│   ├── mod.rs           # Model module
+│   └── app.rs           # App state (input, cursor, mode, edit history, messages, API runtime/channel)
+├── controller/
+│   ├── mod.rs           # Controller module
+│   ├── input.rs         # Character input, deletion, undo, paste, and clear
+│   └── cursor.rs        # Cursor movement logic
+└── api/
+    └── mod.rs           # LLM API integration (in progress)
 ```
 
 ## Development
