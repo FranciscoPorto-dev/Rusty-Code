@@ -4,7 +4,7 @@
 
 ## About This Project
 
-Rust Code is built as a **Rust-native alternative to [OpenCode](https://opencode.ai/)**. Like OpenCode, it aims to bring AI-assisted development into your terminal with a fast, keyboard-driven interface. Where OpenCode is model-neutral and supports many providers, Rusty Code is designed to go further by offering **access to all major LLM APIs** — OpenAI, Anthropic, Google Gemini, AWS Bedrock, Groq, Azure OpenAI, OpenRouter, local models via Ollama, and more — without locking you into a single vendor.
+Rusty Code is built as a **Rust-native alternative to [OpenCode](https://opencode.ai/)**. Like OpenCode, it aims to bring AI-assisted development into your terminal with a fast, keyboard-driven interface. Where OpenCode is model-neutral and supports many providers, Rusty Code is designed to go further by offering **access to all major LLM APIs** — OpenAI, Anthropic, Google Gemini, AWS Bedrock, Groq, Azure OpenAI, OpenRouter, local models via Ollama, and more — without locking you into a single vendor.
 
 The project is in early development. The current TUI foundation includes:
 
