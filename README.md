@@ -1,6 +1,6 @@
 # Rusty Code
 
-**Rusty Code** is an open-source, terminal-based AI coding agent written in Rust. It provides an interactive TUI (Terminal User Interface) for chatting with large language models, navigating your codebase, and getting help with coding tasks — all from the command line.
+**Rust Code** is an open-source, terminal-based AI coding agent written in Rust. It provides an interactive TUI (Terminal User Interface) for chatting with large language models, navigating your codebase, and getting help with coding tasks — all from the command line.
 
 ## About This Project
 
